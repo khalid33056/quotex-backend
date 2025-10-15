@@ -1,23 +1,30 @@
 // config/ton.js
-const { TonClient } = require("@tonclient/core");
-const { libNode } = require("@tonclient/lib-node");
 
-TonClient.useBinaryLibrary(libNode);
+// Import TonWeb library
+const TonWeb = require("tonweb");
 
-const tonClient = new TonClient({
-  network: {
-    endpoints: [process.env.TON_NETWORK === 'mainnet' 
-      ? 'https://mainnet.toncenter.com/api/v2'
-      : 'https://testnet.toncenter.com/api/v2'
-    ],
-  },
-});
+// Initialize TonWeb HTTP provider
+const tonweb = new TonWeb(
+  new TonWeb.HttpProvider(
+    process.env.TON_NETWORK === "mainnet"
+      ? "https://toncenter.com/api/v2/jsonRPC" // Mainnet endpoint
+      : "https://testnet.toncenter.com/api/v2/jsonRPC", // Testnet endpoint
+    {
+      apiKey: process.env.TON_CENTER_API_KEY, // Your TON API key
+    }
+  )
+);
 
+// TON Center config (for external API calls if needed)
 const TON_CENTER_CONFIG = {
-  baseURL: process.env.TON_CENTER_BASE_URL,
+  baseURL:
+    process.env.TON_NETWORK === "mainnet"
+      ? "https://toncenter.com/api/v2/jsonRPC"
+      : "https://testnet.toncenter.com/api/v2/jsonRPC",
   headers: {
-    'X-API-Key': process.env.TON_CENTER_API_KEY
-  }
+    "X-API-Key": process.env.TON_CENTER_API_KEY,
+  },
 };
 
-module.exports = { tonClient, TON_CENTER_CONFIG };
+// Export the TonWeb instance and config
+module.exports = { tonweb, TON_CENTER_CONFIG };
